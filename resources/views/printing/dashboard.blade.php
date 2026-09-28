@@ -15,17 +15,67 @@
         rel="stylesheet"
     >
 
+    <style>
+
+        body {
+            background: #f5f6fa;
+        }
+
+        .stat-card {
+            border: 0;
+            border-radius: 14px;
+            transition: .2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-number {
+            font-size: 30px;
+            font-weight: 700;
+        }
+
+        .action-btn {
+            margin-right: 4px;
+            margin-bottom: 4px;
+        }
+
+        .table td,
+        .table th {
+            vertical-align: middle;
+        }
+
+        .progress {
+            height: 8px;
+        }
+
+        .pagination {
+            margin-bottom: 0;
+        }
+
+        .pagination .page-link {
+            min-width: 40px;
+            text-align: center;
+        }
+
+    </style>
+
 </head>
 
-<body class="bg-light">
+<body>
 
 <div class="container-fluid py-4">
+
+    {{-- ========================================================= --}}
+    {{-- HEADER --}}
+    {{-- ========================================================= --}}
 
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
 
-            <h2 class="fw-bold">
+            <h2 class="fw-bold mb-1">
                 🖨️ Printing Management Dashboard
             </h2>
 
@@ -35,20 +85,20 @@
 
         </div>
 
-        <div>
+        <div class="d-flex gap-2">
 
-            <a href="{{ route('invoice.preview') }}"
-               class="btn btn-primary">
-
+            <a
+                href="{{ route('invoice.preview') }}"
+                class="btn btn-primary"
+            >
                 📄 Invoice Preview
-
             </a>
 
-            <a href="{{ route('printing.printers') }}"
-               class="btn btn-dark">
-
+            <a
+                href="{{ route('printing.printers') }}"
+                class="btn btn-dark"
+            >
                 🖨️ Printers
-
             </a>
 
         </div>
@@ -56,49 +106,61 @@
     </div>
 
 
-    {{-- Success message --}}
+    {{-- ========================================================= --}}
+    {{-- SUCCESS MESSAGE --}}
+    {{-- ========================================================= --}}
 
     @if(session('success'))
 
-        <div class="alert alert-success alert-dismissible fade show">
+        <div
+            class="alert alert-success alert-dismissible fade show"
+        >
 
             {{ session('success') }}
 
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
-            </button>
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+            ></button>
 
         </div>
 
     @endif
 
 
-    {{-- Error message --}}
+    {{-- ========================================================= --}}
+    {{-- ERROR MESSAGE --}}
+    {{-- ========================================================= --}}
 
     @if(session('error'))
 
-        <div class="alert alert-danger alert-dismissible fade show">
+        <div
+            class="alert alert-danger alert-dismissible fade show"
+        >
 
             {{ session('error') }}
 
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
-            </button>
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+            ></button>
 
         </div>
 
     @endif
 
 
-    {{-- Statistics --}}
+    {{-- ========================================================= --}}
+    {{-- STATISTICS --}}
+    {{-- ========================================================= --}}
 
     <div class="row g-4 mb-4">
 
         <div class="col-md-6 col-xl-3">
 
-            <div class="card border-0 shadow-sm">
+            <div class="card stat-card shadow-sm">
 
                 <div class="card-body">
 
@@ -106,9 +168,9 @@
                         Total Print Jobs
                     </div>
 
-                    <h2 class="fw-bold">
+                    <div class="stat-number">
                         {{ $totalJobs }}
-                    </h2>
+                    </div>
 
                 </div>
 
@@ -119,17 +181,17 @@
 
         <div class="col-md-6 col-xl-3">
 
-            <div class="card border-0 shadow-sm">
+            <div class="card stat-card shadow-sm">
 
                 <div class="card-body">
 
                     <div class="text-muted">
-                        Successful Jobs
+                        Successful
                     </div>
 
-                    <h2 class="fw-bold text-success">
+                    <div class="stat-number text-success">
                         {{ $successfulJobs }}
-                    </h2>
+                    </div>
 
                 </div>
 
@@ -140,17 +202,17 @@
 
         <div class="col-md-6 col-xl-3">
 
-            <div class="card border-0 shadow-sm">
+            <div class="card stat-card shadow-sm">
 
                 <div class="card-body">
 
                     <div class="text-muted">
-                        Failed Jobs
+                        Failed
                     </div>
 
-                    <h2 class="fw-bold text-danger">
+                    <div class="stat-number text-danger">
                         {{ $failedJobs }}
-                    </h2>
+                    </div>
 
                 </div>
 
@@ -160,6 +222,35 @@
 
 
         <div class="col-md-6 col-xl-3">
+
+            <div class="card stat-card shadow-sm">
+
+                <div class="card-body">
+
+                    <div class="text-muted">
+                        Pending
+                    </div>
+
+                    <div class="stat-number text-warning">
+                        {{ $pendingJobs }}
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {{-- ========================================================= --}}
+    {{-- SECOND STATS --}}
+    {{-- ========================================================= --}}
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-3">
 
             <div class="card border-0 shadow-sm">
 
@@ -169,8 +260,118 @@
                         Today's Jobs
                     </div>
 
-                    <h2 class="fw-bold">
+                    <h3 class="fw-bold">
                         {{ $todayJobs }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-body">
+
+                    <div class="text-muted">
+                        Today's Success
+                    </div>
+
+                    <h3 class="fw-bold text-success">
+                        {{ $todaySuccessfulJobs }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-body">
+
+                    <div class="text-muted">
+                        Today's Failed
+                    </div>
+
+                    <h3 class="fw-bold text-danger">
+                        {{ $todayFailedJobs }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-body">
+
+                    <div class="text-muted">
+                        Success Rate
+                    </div>
+
+                    <h3 class="fw-bold">
+                        {{ $successRate }}%
+                    </h3>
+
+                    <div class="progress">
+
+                        <div
+                            class="progress-bar"
+                            style="width: {{ $successRate }}%"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {{-- ========================================================= --}}
+    {{-- TOTAL AMOUNT --}}
+    {{-- ========================================================= --}}
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="row align-items-center">
+
+                <div class="col-md-8">
+
+                    <h5 class="fw-bold mb-1">
+                        Successful Invoice Value
+                    </h5>
+
+                    <p class="text-muted mb-0">
+                        Total invoice amount from successful
+                        print jobs.
+                    </p>
+
+                </div>
+
+                <div class="col-md-4 text-md-end">
+
+                    <h2 class="fw-bold mb-0">
+                        ₹{{ number_format($totalAmount, 2) }}
                     </h2>
 
                 </div>
@@ -182,226 +383,207 @@
     </div>
 
 
-    {{-- Second statistics row --}}
-
-    <div class="row g-4 mb-4">
-
-        <div class="col-md-6">
-
-            <div class="card border-0 shadow-sm">
-
-                <div class="card-body">
-
-                    <h6 class="text-muted">
-                        Pending Print Jobs
-                    </h6>
-
-                    <h3>
-                        {{ $pendingJobs }}
-                    </h3>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="col-md-6">
-
-            <div class="card border-0 shadow-sm">
-
-                <div class="card-body">
-
-                    <h6 class="text-muted">
-                        Successful Invoice Value
-                    </h6>
-
-                    <h3>
-                        ₹{{ number_format($totalAmount, 2) }}
-                    </h3>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-{{-- Printer quick overview --}}
-
-<div class="card border-0 shadow-sm mb-4">
-
-    <div class="card-body">
-
-        <div class="d-flex justify-content-between">
-
-            <h5 class="fw-bold">
-                Available Printers
-            </h5>
-
-            <a
-                href="{{ route('printing.printers') }}"
-                class="btn btn-sm btn-outline-dark"
-            >
-                View All
-            </a>
-
-        </div>
-
-        <hr>
-
-        <div class="row">
-
-            @forelse($printers as $printer)
-
-                <div class="col-md-4 mb-3">
-
-                    <div class="border rounded p-3 h-100">
-
-                        <div class="d-flex justify-content-between">
-
-                            <h6 class="fw-bold">
-
-                                {{ $printer['name'] }}
-
-                            </h6>
-
-                            <span>
-                                🖨️
-                            </span>
-
-                        </div>
-
-                        <small class="text-muted">
-
-                            Printer ID:
-                            {{ $printer['id'] }}
-
-                        </small>
-
-                        <br>
-
-                        @if(
-                            strtolower(
-                                (string) $printer['state']
-                            ) === 'online'
-                        )
-
-                            <span class="badge bg-success mt-2">
-                                Online
-                            </span>
-
-                        @elseif(
-                            strtolower(
-                                (string) $printer['state']
-                            ) === 'offline'
-                        )
-
-                            <span class="badge bg-danger mt-2">
-                                Offline
-                            </span>
-
-                        @else
-
-                            <span class="badge bg-secondary mt-2">
-
-                                {{ $printer['state'] }}
-
-                            </span>
-
-                        @endif
-
-                        <div class="small text-muted mt-2">
-
-                            Computer:
-                            {{ $printer['computer'] }}
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            @empty
-
-                <div class="col-12">
-
-                    <div class="alert alert-warning mb-0">
-
-                        No PrintNode printers found.
-
-                    </div>
-
-                </div>
-
-            @endforelse
-
-        </div>
-
-    </div>
-
-</div>
-
-
-    {{-- Search and filters --}}
+    {{-- ========================================================= --}}
+    {{-- PRINTER OVERVIEW --}}
+    {{-- ========================================================= --}}
 
     <div class="card border-0 shadow-sm mb-4">
 
         <div class="card-body">
 
-            <h5 class="fw-bold mb-3">
-                Print Job History
-            </h5>
+            <div class="d-flex justify-content-between align-items-center">
 
-            <form method="GET"
-                  action="{{ route('printing.dashboard') }}">
+                <h5 class="fw-bold mb-0">
+                    Available Printers
+                </h5>
+
+                <a
+                    href="{{ route('printing.printers') }}"
+                    class="btn btn-sm btn-outline-dark"
+                >
+                    View All
+                </a>
+
+            </div>
+
+            <hr>
+
+            <div class="row">
+
+                @forelse($printers as $printer)
+
+                    <div class="col-md-4 mb-3">
+
+                        <div class="border rounded p-3 h-100">
+
+                            <div class="d-flex justify-content-between">
+
+                                <h6 class="fw-bold">
+                                    {{ $printer['name'] }}
+                                </h6>
+
+                                <span>
+                                    🖨️
+                                </span>
+
+                            </div>
+
+                            <small class="text-muted">
+
+                                ID:
+                                {{ $printer['id'] }}
+
+                            </small>
+
+                            <br>
+
+                            @if(
+                                strtolower((string) $printer['state'])
+                                === 'online'
+                            )
+
+                                <span class="badge bg-success mt-2">
+                                    Online
+                                </span>
+
+                            @elseif(
+                                strtolower((string) $printer['state'])
+                                === 'offline'
+                            )
+
+                                <span class="badge bg-danger mt-2">
+                                    Offline
+                                </span>
+
+                            @else
+
+                                <span class="badge bg-secondary mt-2">
+                                    {{ $printer['state'] }}
+                                </span>
+
+                            @endif
+
+                            <div class="small text-muted mt-2">
+
+                                Computer:
+                                {{ $printer['computer'] }}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                @empty
+
+                    <div class="col-12">
+
+                        <div class="alert alert-warning mb-0">
+
+                            No PrintNode printers found.
+
+                        </div>
+
+                    </div>
+
+                @endforelse
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {{-- ========================================================= --}}
+    {{-- SEARCH + FILTERS --}}
+    {{-- ========================================================= --}}
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <h5 class="fw-bold mb-0">
+                    Print Job History
+                </h5>
+
+                <a
+                    href="{{ route(
+                        'printing.export',
+                        request()->query()
+                    ) }}"
+                    class="btn btn-success"
+                >
+                    📥 Export CSV
+                </a>
+
+            </div>
+
+
+            <form
+                method="GET"
+                action="{{ route('printing.dashboard') }}"
+            >
 
                 <div class="row g-3">
 
+                    {{-- SEARCH --}}
+
                     <div class="col-md-4">
+
+                        <label class="form-label">
+                            Search
+                        </label>
 
                         <input
                             type="text"
                             name="search"
                             class="form-control"
-                            placeholder="Search order, customer or printer..."
+                            placeholder="Order, customer, printer..."
                             value="{{ request('search') }}"
                         >
 
                     </div>
 
 
-                    <div class="col-md-3">
+                    {{-- STATUS --}}
 
-                        <select name="status"
-                                class="form-select">
+                    <div class="col-md-2">
+
+                        <label class="form-label">
+                            Status
+                        </label>
+
+                        <select
+                            name="status"
+                            class="form-select"
+                        >
 
                             <option value="">
-                                All Statuses
+                                All
                             </option>
 
-                            <option value="success"
-                                @selected(request('status') === 'success')>
-
-                                Successful
-
+                            <option
+                                value="success"
+                                @selected(request('status') === 'success')
+                            >
+                                Success
                             </option>
 
-                            <option value="failed"
-                                @selected(request('status') === 'failed')>
-
+                            <option
+                                value="failed"
+                                @selected(request('status') === 'failed')
+                            >
                                 Failed
-
                             </option>
 
-                            <option value="pending"
-                                @selected(request('status') === 'pending')>
-
+                            <option
+                                value="pending"
+                                @selected(request('status') === 'pending')
+                            >
                                 Pending
-
                             </option>
 
                         </select>
@@ -409,25 +591,194 @@
                     </div>
 
 
-                    <div class="col-md-3">
+                    {{-- PRINTER --}}
+
+                    <div class="col-md-2">
+
+                        <label class="form-label">
+                            Printer
+                        </label>
+
+                        <select
+                            name="printer_id"
+                            class="form-select"
+                        >
+
+                            <option value="">
+                                All Printers
+                            </option>
+
+                            @foreach($printers as $printer)
+
+                                <option
+                                    value="{{ $printer['id'] }}"
+                                    @selected(
+                                        (string) request('printer_id')
+                                        === (string) $printer['id']
+                                    )
+                                >
+                                    {{ $printer['name'] }}
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+                    </div>
+
+
+                    {{-- DATE FROM --}}
+
+                    <div class="col-md-2">
+
+                        <label class="form-label">
+                            Date From
+                        </label>
 
                         <input
                             type="date"
-                            name="date"
+                            name="date_from"
                             class="form-control"
-                            value="{{ request('date') }}"
+                            value="{{ request('date_from') }}"
                         >
 
                     </div>
 
 
+                    {{-- DATE TO --}}
+
                     <div class="col-md-2">
 
-                        <button class="btn btn-primary w-100">
+                        <label class="form-label">
+                            Date To
+                        </label>
 
-                            Search
+                        <input
+                            type="date"
+                            name="date_to"
+                            class="form-control"
+                            value="{{ request('date_to') }}"
+                        >
 
+                    </div>
+
+
+                    {{-- SORT --}}
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            Sort By
+                        </label>
+
+                        <select
+                            name="sort"
+                            class="form-select"
+                        >
+
+                            <option
+                                value="created_at"
+                                @selected($sort === 'created_at')
+                            >
+                                Created Date
+                            </option>
+
+                            <option
+                                value="id"
+                                @selected($sort === 'id')
+                            >
+                                ID
+                            </option>
+
+                            <option
+                                value="order_id"
+                                @selected($sort === 'order_id')
+                            >
+                                Order ID
+                            </option>
+
+                            <option
+                                value="customer"
+                                @selected($sort === 'customer')
+                            >
+                                Customer
+                            </option>
+
+                            <option
+                                value="total"
+                                @selected($sort === 'total')
+                            >
+                                Amount
+                            </option>
+
+                            <option
+                                value="status"
+                                @selected($sort === 'status')
+                            >
+                                Status
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    {{-- DIRECTION --}}
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            Direction
+                        </label>
+
+                        <select
+                            name="direction"
+                            class="form-select"
+                        >
+
+                            <option
+                                value="desc"
+                                @selected($direction === 'desc')
+                            >
+                                Descending
+                            </option>
+
+                            <option
+                                value="asc"
+                                @selected($direction === 'asc')
+                            >
+                                Ascending
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    {{-- APPLY --}}
+
+                    <div class="col-md-3 d-flex align-items-end">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary w-100"
+                        >
+                            🔎 Apply Filters
                         </button>
+
+                    </div>
+
+
+                    {{-- CLEAR --}}
+
+                    <div class="col-md-3 d-flex align-items-end">
+
+                        <a
+                            href="{{ route('printing.dashboard') }}"
+                            class="btn btn-secondary w-100"
+                        >
+                            Clear Filters
+                        </a>
 
                     </div>
 
@@ -440,172 +791,475 @@
     </div>
 
 
-    {{-- Print job table --}}
+    {{-- ========================================================= --}}
+    {{-- BULK DELETE FORM --}}
+    {{-- ========================================================= --}}
 
-    <div class="card border-0 shadow-sm">
+    <form
+        method="POST"
+        action="{{ route('printing.jobs.bulkDestroy') }}"
+        id="bulkDeleteForm"
+    >
 
-        <div class="card-body">
+        @csrf
 
-            <div class="table-responsive">
+        @method('DELETE')
 
-                <table class="table table-hover align-middle">
 
-                    <thead class="table-light">
+        <div class="card border-0 shadow-sm">
 
-                        <tr>
+            <div class="card-body">
 
-                            <th>#</th>
+                <div class="d-flex justify-content-between align-items-center mb-3">
 
-                            <th>Order</th>
+                    <h5 class="fw-bold mb-0">
+                        Jobs
+                    </h5>
 
-                            <th>Customer</th>
+                    <button
+                        type="submit"
+                        class="btn btn-danger"
+                        onclick="
+                            return confirm(
+                                'Delete all selected print jobs?'
+                            )
+                        "
+                    >
+                        🗑️ Delete Selected
+                    </button>
 
-                            <th>Printer</th>
+                </div>
 
-                            <th>Total</th>
 
-                            <th>Status</th>
+                <div class="table-responsive">
 
-                            <th>Printed At</th>
+                    <table class="table table-hover align-middle">
 
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                        @forelse($jobs as $job)
+                        <thead class="table-light">
 
                             <tr>
 
-                                <td>
-                                    {{ $job->id }}
-                                </td>
+                                <th>
 
-                                <td>
-                                    #{{ $job->order_id }}
-                                </td>
+                                    <input
+                                        type="checkbox"
+                                        class="form-check-input"
+                                        id="selectAll"
+                                    >
 
-                                <td>
-                                    {{ $job->customer }}
-                                </td>
+                                </th>
 
-                                <td>
+                                <th>#</th>
 
-                                    {{ $job->printer_name ?? 'Unknown' }}
+                                <th>Order</th>
 
-                                    <br>
+                                <th>Customer</th>
 
-                                    <small class="text-muted">
-                                        ID:
-                                        {{ $job->printer_id ?? '-' }}
-                                    </small>
+                                <th>Printer</th>
 
-                                </td>
+                                <th>Total</th>
 
-                                <td>
-                                    ₹{{ number_format(
-                                        $job->total,
-                                        2
-                                    ) }}
-                                </td>
+                                <th>Status</th>
 
-                                <td>
+                                <th>Printed At</th>
 
-                                    @if($job->status === 'success')
-
-                                        <span class="badge bg-success">
-                                            Success
-                                        </span>
-
-                                    @elseif($job->status === 'failed')
-
-                                        <span class="badge bg-danger">
-                                            Failed
-                                        </span>
-
-                                    @else
-
-                                        <span class="badge bg-warning text-dark">
-                                            Pending
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-                                <td>
-
-                                    {{ $job->printed_at
-                                        ? $job->printed_at->format(
-                                            'd M Y H:i'
-                                        )
-                                        : '-' }}
-
-                                </td>
+                                <th>Actions</th>
 
                             </tr>
 
-                            @if($job->status === 'failed'
-                                && $job->error_message)
+                        </thead>
+
+
+                        <tbody>
+
+                            @forelse($jobs as $job)
 
                                 <tr>
 
-                                    <td colspan="7">
+                                    {{-- CHECKBOX --}}
 
-                                        <div class="alert alert-danger mb-0">
+                                    <td>
 
-                                            <strong>
-                                                Error:
-                                            </strong>
+                                        <input
+                                            type="checkbox"
+                                            name="job_ids[]"
+                                            value="{{ $job->id }}"
+                                            class="form-check-input job-checkbox"
+                                        >
 
-                                            {{ $job->error_message }}
+                                    </td>
 
-                                        </div>
+
+                                    {{-- ID --}}
+
+                                    <td>
+                                        {{ $job->id }}
+                                    </td>
+
+
+                                    {{-- ORDER --}}
+
+                                    <td>
+                                        #{{ $job->order_id }}
+                                    </td>
+
+
+                                    {{-- CUSTOMER --}}
+
+                                    <td>
+                                        {{ $job->customer }}
+                                    </td>
+
+
+                                    {{-- PRINTER --}}
+
+                                    <td>
+
+                                        {{ $job->printer_name ?? 'Unknown' }}
+
+                                        <br>
+
+                                        <small class="text-muted">
+
+                                            ID:
+                                            {{ $job->printer_id ?? '-' }}
+
+                                        </small>
+
+                                    </td>
+
+
+                                    {{-- TOTAL --}}
+
+                                    <td>
+
+                                        ₹{{ number_format(
+                                            $job->total,
+                                            2
+                                        ) }}
+
+                                    </td>
+
+
+                                    {{-- STATUS --}}
+
+                                    <td>
+
+                                        @if($job->status === 'success')
+
+                                            <span class="badge bg-success">
+                                                Success
+                                            </span>
+
+                                        @elseif($job->status === 'failed')
+
+                                            <span class="badge bg-danger">
+                                                Failed
+                                            </span>
+
+                                        @else
+
+                                            <span
+                                                class="badge bg-warning text-dark"
+                                            >
+                                                Pending
+                                            </span>
+
+                                        @endif
+
+                                    </td>
+
+
+                                    {{-- PRINTED AT --}}
+
+                                    <td>
+
+                                        {{ $job->printed_at
+                                            ? $job->printed_at->format(
+                                                'd M Y H:i'
+                                            )
+                                            : '-'
+                                        }}
+
+                                    </td>
+
+
+                                    {{-- ACTIONS --}}
+
+                                    <td>
+
+                                        {{-- VIEW --}}
+
+                                        <a
+                                            href="{{ route(
+                                                'printing.show',
+                                                $job
+                                            ) }}"
+                                            class="btn btn-sm btn-info text-white action-btn"
+                                        >
+                                            View
+                                        </a>
+
+
+                                        {{-- DOWNLOAD PDF --}}
+
+                                        @if($job->file_path)
+
+                                            <a
+                                                href="{{ route(
+                                                    'printing.job.download',
+                                                    $job
+                                                ) }}"
+                                                class="btn btn-sm btn-success action-btn"
+                                            >
+                                                PDF
+                                            </a>
+
+                                        @endif
+
+
+                                        {{-- RETRY --}}
+
+                                        @if($job->status === 'failed')
+
+                                            <form
+                                                method="POST"
+                                                action="{{ route(
+                                                    'printing.job.retry',
+                                                    $job
+                                                ) }}"
+                                                class="d-inline"
+                                            >
+
+                                                @csrf
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-sm btn-warning action-btn"
+                                                    onclick="
+                                                        return confirm(
+                                                            'Retry this failed print job?'
+                                                        )
+                                                    "
+                                                >
+                                                    Retry
+                                                </button>
+
+                                            </form>
+
+                                        @endif
+
+
+                                        {{-- REPRINT --}}
+
+                                        @if($job->status === 'success')
+
+                                            <form
+                                                method="POST"
+                                                action="{{ route(
+                                                    'printing.job.reprint',
+                                                    $job
+                                                ) }}"
+                                                class="d-inline"
+                                            >
+
+                                                @csrf
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-sm btn-primary action-btn"
+                                                    onclick="
+                                                        return confirm(
+                                                            'Reprint this invoice?'
+                                                        )
+                                                    "
+                                                >
+                                                    Reprint
+                                                </button>
+
+                                            </form>
+
+                                        @endif
+
+
+                                        {{-- DELETE --}}
+
+                                        <form
+                                            method="POST"
+                                            action="{{ route(
+                                                'printing.job.destroy',
+                                                $job
+                                            ) }}"
+                                            class="d-inline"
+                                        >
+
+                                            @csrf
+
+                                            @method('DELETE')
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-sm btn-danger action-btn"
+                                                onclick="
+                                                    return confirm(
+                                                        'Delete this print job?'
+                                                    )
+                                                "
+                                            >
+                                                Delete
+                                            </button>
+
+                                        </form>
 
                                     </td>
 
                                 </tr>
 
-                            @endif
 
-                        @empty
+                                {{-- ERROR MESSAGE --}}
 
-                            <tr>
+                                @if(
+                                    $job->status === 'failed'
+                                    && $job->error_message
+                                )
 
-                                <td colspan="7"
-                                    class="text-center py-4">
+                                    <tr>
 
-                                    No print jobs found.
+                                        <td colspan="9">
 
-                                </td>
+                                            <div
+                                                class="alert alert-danger mb-0"
+                                            >
 
-                            </tr>
+                                                <strong>
+                                                    Error:
+                                                </strong>
 
-                        @endforelse
+                                                {{ $job->error_message }}
 
-                    </tbody>
+                                            </div>
 
-                </table>
+                                        </td>
 
-            </div>
+                                    </tr>
+
+                                @endif
 
 
-            <div class="mt-3">
+                            @empty
 
-                {{ $jobs->links() }}
+                                <tr>
+
+                                    <td
+                                        colspan="9"
+                                        class="text-center py-5"
+                                    >
+
+                                        <h5>
+                                            No print jobs found.
+                                        </h5>
+
+                                        <p class="text-muted mb-0">
+                                            Try changing your filters.
+                                        </p>
+
+                                    </td>
+
+                                </tr>
+
+                            @endforelse
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                {{-- ================================================= --}}
+                {{-- NUMERIC-ONLY PAGINATION --}}
+                {{-- ================================================= --}}
+
+                @if($jobs->hasPages())
+
+                    <div class="d-flex justify-content-center mt-4">
+
+                        <nav aria-label="Print job pagination">
+
+                            <ul class="pagination">
+
+                                @for(
+                                    $page = 1;
+                                    $page <= $jobs->lastPage();
+                                    $page++
+                                )
+
+                                    <li
+                                        class="page-item
+                                            {{ $page == $jobs->currentPage()
+                                                ? 'active'
+                                                : ''
+                                            }}"
+                                    >
+
+                                        <a
+                                            class="page-link"
+                                            href="{{ $jobs->url($page) }}"
+                                        >
+                                            {{ $page }}
+                                        </a>
+
+                                    </li>
+
+                                @endfor
+
+                            </ul>
+
+                        </nav>
+
+                    </div>
+
+                @endif
 
             </div>
 
         </div>
 
-    </div>
+    </form>
 
 </div>
 
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+{{-- ============================================================= --}}
+{{-- SELECT ALL SCRIPT --}}
+{{-- ============================================================= --}}
+
+<script>
+
+    const selectAll = document.getElementById('selectAll');
+
+    if (selectAll) {
+
+        selectAll.addEventListener('change', function () {
+
+            document
+                .querySelectorAll('.job-checkbox')
+                .forEach(function (checkbox) {
+
+                    checkbox.checked = selectAll.checked;
+
+                });
+
+        });
+
+    }
+
 </script>
+
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+></script>
 
 </body>
 
