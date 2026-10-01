@@ -54,12 +54,35 @@
 
         </div>
 
-        <a
-            href="{{ route('printing.dashboard') }}"
-            class="btn btn-secondary"
-        >
-            ← Dashboard
-        </a>
+        <div class="d-flex gap-2">
+            <a
+                href="{{ route('printing.dashboard') }}"
+                class="btn btn-outline-secondary"
+            >
+                📊 Dashboard
+            </a>
+
+            <a
+                href="{{ route('printing.thermal-studio') }}"
+                class="btn btn-outline-primary"
+            >
+                🏷️ Thermal Studio
+            </a>
+
+            <a
+                href="{{ route('printing.analytics') }}"
+                class="btn btn-outline-dark"
+            >
+                📈 Analytics & Failover
+            </a>
+
+            <a
+                href="{{ route('printing.printers') }}"
+                class="btn btn-dark active"
+            >
+                🖨️ Printers
+            </a>
+        </div>
 
     </div>
 

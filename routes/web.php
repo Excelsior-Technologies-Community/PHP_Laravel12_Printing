@@ -149,3 +149,32 @@ Route::get(
     '/printing/export',
     [PrintController::class, 'exportCsv']
 )->name('printing.export');
+
+
+/*
+|--------------------------------------------------------------------------
+| Thermal Receipt & Barcode Label Studio
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/printing/thermal-studio',
+    [PrintController::class, 'thermalStudio']
+)->name('printing.thermal-studio');
+
+Route::post(
+    '/printing/thermal/print',
+    [PrintController::class, 'printThermal']
+)->name('printing.thermal.print');
+
+
+/*
+|--------------------------------------------------------------------------
+| Print Queue Analytics & Auto-Failover Router
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/printing/analytics',
+    [PrintController::class, 'analytics']
+)->name('printing.analytics');
