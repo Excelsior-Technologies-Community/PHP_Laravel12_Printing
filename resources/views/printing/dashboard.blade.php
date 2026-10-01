@@ -88,8 +88,29 @@
         <div class="d-flex gap-2">
 
             <a
-                href="{{ route('invoice.preview') }}"
+                href="{{ route('printing.dashboard') }}"
                 class="btn btn-primary"
+            >
+                📊 Dashboard
+            </a>
+
+            <a
+                href="{{ route('printing.thermal-studio') }}"
+                class="btn btn-outline-primary"
+            >
+                🏷️ Thermal Studio
+            </a>
+
+            <a
+                href="{{ route('printing.analytics') }}"
+                class="btn btn-outline-dark"
+            >
+                📈 Analytics & Failover
+            </a>
+
+            <a
+                href="{{ route('invoice.preview') }}"
+                class="btn btn-outline-secondary"
             >
                 📄 Invoice Preview
             </a>

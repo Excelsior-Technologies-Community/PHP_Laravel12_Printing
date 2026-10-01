@@ -16,6 +16,11 @@ class PrintJob extends Model
         'printer_id',
         'printer_name',
         'status',
+        'format_type',
+        'pages_count',
+        'paper_cost',
+        'failover_printer',
+        'is_failover',
         'file_name',
         'file_path',
         'error_message',
@@ -26,6 +31,8 @@ class PrintJob extends Model
     {
         return [
             'total' => 'decimal:2',
+            'paper_cost' => 'decimal:4',
+            'is_failover' => 'boolean',
             'printed_at' => 'datetime',
         ];
     }
