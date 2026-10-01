@@ -1219,4 +1219,214 @@ class PrintController extends Controller
             'total' => 1500,
         ];
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Thermal Receipt & Barcode Label Studio View
+    |--------------------------------------------------------------------------
+    */
+    public function thermalStudio(Request $request)
+    {
+        $printers = $this->getPrinters();
+
+        $formats = [
+            'thermal_80mm' => [
+                'name' => '80mm POS Thermal Receipt',
+                'width' => '80mm',
+                'badge' => 'bg-primary',
+                'default_cost' => 0.05,
+            ],
+            'thermal_58mm' => [
+                'name' => '58mm POS Mini Receipt',
+                'width' => '58mm',
+                'badge' => 'bg-info',
+                'default_cost' => 0.03,
+            ],
+            'shipping_label' => [
+                'name' => 'Shipping Label (4x6")',
+                'width' => '100mm',
+                'badge' => 'bg-warning text-dark',
+                'default_cost' => 0.15,
+            ],
+            'barcode_tag' => [
+                'name' => 'Product Barcode / QR Tag',
+                'width' => '50mm',
+                'badge' => 'bg-dark',
+                'default_cost' => 0.02,
+            ],
+        ];
+
+        $thermalJobs = PrintJob::whereNotNull('format_type')
+            ->orderByDesc('id')
+            ->take(15)
+            ->get();
+
+        return view('printing.thermal_studio', compact('printers', 'formats', 'thermalJobs'));
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Process Thermal / Label Print with Auto-Failover Logic
+    |--------------------------------------------------------------------------
+    */
+    public function printThermal(Request $request)
+    {
+        $request->validate([
+            'printer_id' => 'required|string',
+            'format_type' => 'required|string',
+            'customer' => 'nullable|string',
+            'header_title' => 'nullable|string',
+            'barcode_text' => 'nullable|string',
+            'standby_printer_id' => 'nullable|string',
+            'pages_count' => 'nullable|integer|min:1',
+            'simulate_jam' => 'nullable|boolean',
+        ]);
+
+        $formatType = $request->input('format_type', 'thermal_80mm');
+        $primaryPrinterId = $request->input('printer_id');
+        $standbyPrinterId = $request->input('standby_printer_id');
+        $customer = $request->input('customer', 'POS Customer');
+        $headerTitle = $request->input('header_title', 'EXPRESS STORE');
+        $barcodeText = $request->input('barcode_text', 'TRK-' . rand(100000, 999999));
+        $pagesCount = (int) $request->input('pages_count', 1);
+        $simulateJam = (bool) $request->input('simulate_jam', false);
+
+        $costMap = [
+            'thermal_80mm' => 0.05,
+            'thermal_58mm' => 0.03,
+            'shipping_label' => 0.15,
+            'barcode_tag' => 0.02,
+            'invoice_pdf' => 0.10,
+        ];
+
+        $unitCost = $costMap[$formatType] ?? 0.05;
+        $totalPaperCost = round($unitCost * $pagesCount, 2);
+
+        $primaryPrinterName = $this->findPrinterName($primaryPrinterId);
+        
+        $isPrimaryFailed = $simulateJam || in_array(strtolower($primaryPrinterId), ['offline', 'busy', 'error', 'jammed', '3']);
+
+        $actualPrinterId = $primaryPrinterId;
+        $actualPrinterName = $primaryPrinterName;
+        $isFailover = false;
+
+        if ($isPrimaryFailed) {
+            $isFailover = true;
+            $actualPrinterName = $standbyPrinterId 
+                ? $this->findPrinterName($standbyPrinterId) 
+                : 'Standby POS Thermal (Auto-Failover)';
+            $actualPrinterId = $standbyPrinterId ?: 'standby-thermal-01';
+        }
+
+        $orderId = rand(10000, 99999);
+        $fileName = 'thermal_' . $formatType . '_' . $orderId . '.txt';
+        $directory = storage_path('app/thermal_prints');
+
+        if (!File::exists($directory)) {
+            File::makeDirectory($directory, 0755, true);
+        }
+
+        $filePath = $directory . DIRECTORY_SEPARATOR . $fileName;
+
+        $content = "=== {$headerTitle} ===\n";
+        $content .= "Format: {$formatType}\n";
+        $content .= "Customer: {$customer}\n";
+        $content .= "Barcode: {$barcodeText}\n";
+        $content .= "Date: " . now()->toDateTimeString() . "\n";
+        $content .= "Pages: {$pagesCount}\n";
+        $content .= "Printed via: {$actualPrinterName}" . ($isFailover ? " (AUTO-FAILOVER)" : "") . "\n";
+
+        File::put($filePath, $content);
+
+        PrintJob::create([
+            'order_id' => $orderId,
+            'customer' => $customer,
+            'total' => rand(15, 250),
+            'printer_id' => $actualPrinterId,
+            'printer_name' => $actualPrinterName,
+            'format_type' => $formatType,
+            'pages_count' => $pagesCount,
+            'paper_cost' => $totalPaperCost,
+            'is_failover' => $isFailover,
+            'failover_printer' => $isFailover ? $primaryPrinterName : null,
+            'status' => 'success',
+            'file_name' => $fileName,
+            'file_path' => $filePath,
+            'printed_at' => now(),
+        ]);
+
+        if ($isFailover) {
+            $msg = "⚡ Auto-Failover Triggered! Primary printer '{$primaryPrinterName}' was unavailable. Job rerouted to '{$actualPrinterName}'.";
+            return redirect()->route('printing.thermal-studio')->with('warning', $msg);
+        }
+
+        return redirect()->route('printing.thermal-studio')->with('success', "Thermal print job #{$orderId} sent successfully to {$actualPrinterName}!");
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Print Queue Analytics & Load Balancer View
+    |--------------------------------------------------------------------------
+    */
+    public function analytics(Request $request)
+    {
+        $printers = $this->getPrinters();
+        $totalJobs = PrintJob::count();
+
+        $totalPagesPrinted = PrintJob::sum('pages_count') ?: PrintJob::count();
+
+        $totalCost = PrintJob::sum('paper_cost');
+        if ($totalCost == 0 && $totalJobs > 0) {
+            $totalCost = round($totalJobs * 0.08, 2);
+        }
+
+        $failoverCount = PrintJob::where('is_failover', true)->count();
+
+        $successfulJobs = PrintJob::where('status', 'success')->count();
+        $failedJobs = PrintJob::where('status', 'failed')->count();
+        $successRate = $totalJobs > 0 ? round(($successfulJobs / $totalJobs) * 100, 1) : 100;
+
+        $formatBreakdown = [
+            'thermal_80mm' => PrintJob::where('format_type', 'thermal_80mm')->count(),
+            'thermal_58mm' => PrintJob::where('format_type', 'thermal_58mm')->count(),
+            'shipping_label' => PrintJob::where('format_type', 'shipping_label')->count(),
+            'barcode_tag' => PrintJob::where('format_type', 'barcode_tag')->count(),
+            'invoice_pdf' => PrintJob::where(function($q){
+                $q->whereNull('format_type')->orWhere('format_type', 'invoice_pdf');
+            })->count(),
+        ];
+
+        $failoverJobs = PrintJob::where('is_failover', true)
+            ->orderByDesc('id')
+            ->take(10)
+            ->get();
+
+        $printerStats = [];
+        foreach ($printers as $p) {
+            $jobCount = PrintJob::where('printer_id', (string)$p['id'])->count();
+            $loadPercentage = $totalJobs > 0 ? round(($jobCount / $totalJobs) * 100, 1) : 0;
+
+            $printerStats[] = [
+                'id' => $p['id'],
+                'name' => $p['name'],
+                'state' => $p['state'],
+                'job_count' => $jobCount,
+                'load_percentage' => $loadPercentage,
+                'status_badge' => (strtolower($p['state']) === 'online' || strtolower($p['state']) === 'ready') ? 'bg-success' : 'bg-warning text-dark',
+            ];
+        }
+
+        return view('printing.analytics', compact(
+            'totalJobs',
+            'totalPagesPrinted',
+            'totalCost',
+            'failoverCount',
+            'successRate',
+            'successfulJobs',
+            'failedJobs',
+            'formatBreakdown',
+            'failoverJobs',
+            'printerStats'
+        ));
+    }
 }
